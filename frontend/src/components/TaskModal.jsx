@@ -42,6 +42,7 @@ const TaskModal = ({ isOpen, onClose, onSave, existingTask = null }) => {
   const [priority, setPriority] = useState(priorityOptions[0]);
   const [category, setCategory] = useState(categoryOptions[1]);
   const [attachment, setAttachment] = useState(null);
+  const [fileError, setFileError] = useState('');
 
   useEffect(() => {
     if (existingTask) {
@@ -60,8 +61,6 @@ const TaskModal = ({ isOpen, onClose, onSave, existingTask = null }) => {
   }, [existingTask, isOpen]);
 
   if (!isOpen) return null;
-
-  const [fileError, setFileError] = useState('');
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

@@ -1,201 +1,217 @@
-# 📋 KanbanBoard — Real-Time Task Management
+# 📝 KanbanBoard — Real-Time Task Management
 
-A professional, real-time Kanban board application built with React, WebSockets (Socket.IO), and Vite. Track assignments, projects, and daily tasks across **To Do**, **In Progress**, and **Done** columns with drag-and-drop functionality, live progress charts, file attachments, and more.
+A professional, real-time Kanban board application built with React, WebSockets (Socket.IO), and Vite. Track assignments, projects, and daily tasks across **To Do**, **In Progress**, and **Done** columns with seamless drag-and-drop interactions, live progress metrics, file attachments, and instant synchronization.
 
-> **Built by Shruti Srivastava** | [sri.shruti24@gmail.com](mailto:sri.shruti24@gmail.com)
+> **Developer:** Shruti Srivastava | [sri.shruti24@gmail.com](mailto:sri.shruti24@gmail.com)
+
+---
+
+## 🏗️ System Architecture & Data Flow
+
+The diagram below illustrates how client interactions (drag-and-drop, task CRUD operations) are processed optimistically in the frontend and synchronized across connected users in real time via WebSockets.
+
+```mermaid
+graph TD
+    %% Frontend Components
+    subgraph Frontend [React Application Client]
+        UI[KanbanBoard Component]
+        Store[Zustand Store / State]
+        dnd[DragDropContext / @hello-pangea/dnd]
+        Chart[Recharts ProgressChart]
+        Modal[TaskModal Component]
+    end
+
+    %% Backend Server
+    subgraph Backend [Node.js + Socket.IO Server]
+        Server[Express Server server.js]
+        Handlers[Socket.IO Event Handlers]
+        MemoryStore[In-Memory Task Store]
+    end
+
+    %% Connections and Actions
+    UI --> dnd
+    UI --> Modal
+    Modal -->|Add/Edit Task| Store
+    dnd -->|Optimistic Reorder| Store
+    Store -->|Update Visuals| Chart
+    
+    %% Socket interactions
+    Store <-->|WebSocket Connection| Server
+    Server <--> Handlers
+    Handlers <--> MemoryStore
+
+    %% Sync flow
+    Handlers -->|task:create / task:update / task:move / task:delete| Store
+    Server -.->|Broadcast Changes| OtherClients[Other Connected Clients]
+    
+    style Frontend fill:#f0fdf4,stroke:#16a34a,stroke-width:2px
+    style Backend fill:#eff6ff,stroke:#2563eb,stroke-width:2px
+    style Store fill:#fff7ed,stroke:#ea580c,stroke-width:2px
+```
 
 ---
 
 ## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| **Kanban Board** | Three-column layout (To Do, In Progress, Done) with card-based tasks |
-| **Drag & Drop** | Move tasks between columns using `@hello-pangea/dnd` |
-| **Real-Time Sync** | WebSocket-powered updates via Socket.IO — changes reflect instantly |
-| **Task CRUD** | Create, read, update, and delete tasks with a modal form |
-| **Priority & Category** | Assign Low / Medium / High priority and Bug / Feature / Enhancement category |
-| **File Attachments** | Upload images and PDFs with preview support |
-| **Progress Chart** | Live Recharts bar chart showing task distribution and completion % |
-| **Responsive Design** | Fully responsive across desktop, tablet, and mobile |
-| **Neo-brutalist UI** | Bold borders, card shadows, dotted background, Outfit typography |
-| **Portfolio Ready** | Professional footer with author info and Digital Heroes branding |
+* **Neo-Brutalist Design System:** Clean, bold borders, card shadows, custom fonts, and curated neo-brutalist aesthetics.
+* **Optimistic Drag & Drop:** Move cards between columns smoothly with instant UI response using `@hello-pangea/dnd`.
+* **Real-Time Synchronisation:** Updates propagate instantly across all open browser instances using Socket.IO.
+* **Task Management (CRUD):** Easily create, edit, view, and delete task cards with dedicated properties.
+* **Rich Task Attributes:** Define priority levels (Low, Medium, High) and categories (Bug, Feature, Enhancement).
+* **Attachments:** Upload supporting files (images and PDFs) with file previews.
+* **Interactive Data Visualization:** Custom progress bar chart rendering task distributions and real-time completion percentages.
+* **Fully Responsive:** Optimized layouts for mobile devices, tablets, and wide screens.
 
 ---
 
-## 🛠 Tech Stack
+## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 19, Vite 6, JavaScript (ES Modules) |
-| **Styling** | Vanilla CSS with CSS custom properties, Google Fonts (Outfit) |
-| **Drag & Drop** | @hello-pangea/dnd |
-| **Charts** | Recharts |
-| **Icons** | Lucide React |
-| **Dropdowns** | React Select |
-| **Real-Time** | Socket.IO Client |
-| **Backend** | Node.js, Express, Socket.IO Server |
-| **Testing** | Vitest, React Testing Library, Playwright |
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend Framework** | React 19, Vite 6, JavaScript (ES6+) |
+| **Styling** | Vanilla CSS, HSL color tokens, neo-brutalist theme variables, Outfit typeface |
+| **State Management** | React hooks with optimistic update patterns |
+| **Drag & Drop Engine** | `@hello-pangea/dnd` |
+| **WebSocket Protocol** | `socket.io-client` |
+| **Charts & Graphs** | Recharts (Responsive bar chart & progress trackers) |
+| **Icon Library** | Lucide React |
+| **Select Controls** | React Select |
+| **Backend Runtime** | Node.js, Express, Socket.IO Server |
+| **Testing Suite** | Vitest, React Testing Library, Playwright (E2E) |
 
 ---
 
 ## 🚀 Local Setup Instructions
 
 ### Prerequisites
+* **Node.js** (v18 or higher recommended)
+* **npm** (v9 or higher recommended)
 
-- **Node.js** ≥ 18.x
-- **npm** ≥ 9.x
-
-### 1. Clone the Repository
-
+### 1. Clone the Project
 ```bash
-git clone https://github.com/SriShruti24/kanban-board.git
-cd kanban-board
+git clone https://github.com/SriShruti24/personal-kanban-board.git
+cd personal-kanban-board
 ```
 
-### 2. Install Backend Dependencies
-
+### 2. Start the Backend Socket Server
 ```bash
 cd backend
 npm install
-```
-
-### 3. Start the Backend Server
-
-```bash
 npm start
-# Server runs on http://localhost:5000
 ```
+The server will boot on `http://localhost:5000`.
 
-### 4. Install Frontend Dependencies (new terminal)
-
+### 3. Start the Frontend Application
+In a separate terminal:
 ```bash
 cd frontend
 npm install
-```
-
-### 5. Start the Frontend Dev Server
-
-```bash
 npm run dev
-# App runs on http://localhost:3000
 ```
+The Vite development server will open the application on `http://localhost:3000`.
 
-### 6. Run Tests
-
+### 4. Run Test Suites
 ```bash
-# Unit & Integration tests
-npm test
+# Execute unit and integration tests (Vitest)
+npm run test
 
-# E2E tests (Playwright)
+# Execute End-to-End browser tests (Playwright)
 npm run test:e2e
 ```
 
 ---
 
-## 🌐 Vercel Deployment Instructions
-
-This project deploys the **frontend** as a static site on Vercel's free Hobby plan.
-
-### Steps
-
-1. **Push your code** to a GitHub repository.
-
-2. Go to [vercel.com](https://vercel.com) and sign in with GitHub.
-
-3. Click **"Add New Project"** and import your repository.
-
-4. Configure build settings:
-   | Setting | Value |
-   |---------|-------|
-   | **Framework Preset** | Vite |
-   | **Root Directory** | `frontend` |
-   | **Build Command** | `npm run build` |
-   | **Output Directory** | `dist` |
-
-5. Add environment variable (if using a custom backend):
-   | Key | Value |
-   |-----|-------|
-   | `VITE_BACKEND_URL` | Your backend URL (e.g., `https://backend-kanban-gaf2.onrender.com/`) |
-
-6. Click **Deploy** — Vercel will build and host your app automatically.
-
-> **Note:** The backend (Node.js + Socket.IO) should be deployed separately on [Render](https://render.com), [Railway](https://railway.app), or a similar platform.
-
----
-
 ## 📸 Screenshots
 
-> Replace the placeholders below with actual screenshots of your deployed application.
+Below are placeholders to showcase your application screens. Add your image files to a `/screenshots` folder or link directly to hosted assets.
 
-| View | Screenshot |
-|------|-----------|
-| **Desktop — Full Board** | _Add screenshot here_ |
-| **Task Creation Modal** | _Add screenshot here_ |
-| **Progress Chart** | _Add screenshot here_ |
-| **Mobile Responsive** | _Add screenshot here_ |
-| **Footer with Digital Heroes** | _Add screenshot here_ |
+### 💻 Desktop View — Board Overview
+---
+```
++-----------------------------------------------------------------------------+
+|                                                                             |
+|                                [ PLACEHOLDER ]                              |
+|                              Desktop Board View                             |
+|                                                                             |
++-----------------------------------------------------------------------------+
+```
+*(Insert Desktop board screenshot here)*
+
+<br>
+
+### 📊 Live Analytics & Progress Chart
+---
+```
++-----------------------------------------------------------------------------+
+|                                                                             |
+|                                [ PLACEHOLDER ]                              |
+|                               Recharts Analytics                            |
+|                                                                             |
++-----------------------------------------------------------------------------+
+```
+*(Insert progress chart and completion percentage screenshot here)*
+
+<br>
+
+### 📱 Responsive Mobile Display
+---
+```
++--------------------------+
+|                          |
+|      [ PLACEHOLDER ]     |
+|       Mobile Layout      |
+|                          |
++--------------------------+
+```
+*(Insert Mobile responsive layout screenshot here)*
+
+<br>
+
+### 📝 Task Creation & Attachment Preview
+---
+```
++-----------------------------------------------------------------------------+
+|                                                                             |
+|                                [ PLACEHOLDER ]                              |
+|                            TaskModal & File Upload                          |
+|                                                                             |
++-----------------------------------------------------------------------------+
+```
+*(Insert Modal dialog with file attachments screenshot here)*
 
 ---
 
-## ✅ Digital Heroes Compliance Checklist
-
-| # | Requirement | Status |
-|---|-------------|--------|
-| 1 | Tool is fully functional and produces real output | ✅ |
-| 2 | "Built for Digital Heroes" button present with exact text | ✅ |
-| 3 | Button links to `https://digitalheroesco.com` and opens in new tab | ✅ |
-| 4 | Full name **Shruti Srivastava** clearly visible | ✅ |
-| 5 | Email **sri.shruti24@gmail.com** clearly visible | ✅ |
-| 6 | Deployable on Vercel's free Hobby plan | ✅ |
-| 7 | Professional enough for a developer portfolio | ✅ |
-| 8 | No existing functionality removed | ✅ |
-
----
-
-## 📂 Project Structure
+## 📁 Repository Directory Structure
 
 ```
 websocket-kanban-vitest-playwright/
 ├── backend/
-│   ├── server.js              # Express + Socket.IO server
-│   ├── socket/                # WebSocket event handlers
-│   ├── store/                 # In-memory task storage
-│   ├── services/              # Business logic
-│   ├── utils/                 # Helper utilities
-│   └── tests/                 # Backend tests
+│   ├── server.js              # Express app initialization & Socket.IO server config
+│   ├── socket/                # Socket.IO client-action event listeners
+│   ├── store/                 # Server-side in-memory task database
+│   ├── services/              # Server business logic
+│   ├── utils/                 # General backend utilities
+│   └── tests/                 # Server unit and integration tests
 │
 ├── frontend/
-│   ├── index.html             # HTML entry with SEO meta tags
-│   ├── vite.config.js         # Vite + Vitest configuration
+│   ├── index.html             # Client entrypoint, custom favicon, SEO tags
+│   ├── vite.config.js         # Build tooling configurations and Vitest options
 │   ├── src/
-│   │   ├── App.jsx            # Root component
-│   │   ├── main.jsx           # React entry point
-│   │   ├── index.css          # Global styles + responsive design
+│   │   ├── App.jsx            # Layout container for KanbanBoard
+│   │   ├── main.jsx           # App bootstrapping and stylesheet mounting
+│   │   ├── index.css          # Styling rules, animations, and CSS variables
 │   │   ├── components/
-│   │   │   ├── KanbanBoard.jsx    # Main board layout
-│   │   │   ├── Column.jsx         # Droppable column
-│   │   │   ├── TaskCard.jsx       # Draggable task card
-│   │   │   ├── TaskModal.jsx      # Create/Edit task modal
-│   │   │   ├── ProgressChart.jsx  # Recharts progress visualization
-│   │   │   └── Footer.jsx         # Professional footer
-│   │   ├── store/             # State management (useTaskStore)
-│   │   ├── services/          # Socket.IO task service
-│   │   ├── socket/            # Socket client configuration
-│   │   └── tests/             # Unit, integration, and E2E tests
+│   │   │   ├── KanbanBoard.jsx    # Component containing board headers, filters, columns
+│   │   │   ├── Column.jsx         # Card container dropping wrapper
+│   │   │   ├── TaskCard.jsx       # Card element representing tasks
+│   │   │   ├── TaskModal.jsx      # Portal window containing CRUD task forms
+│   │   │   ├── ProgressChart.jsx  # Chart components using Recharts
+│   │   │   └── Footer.jsx         # Author info, email contact, and branding links
+│   │   ├── store/             # Zustand state management
+│   │   ├── services/          # Socket emission helper methods
+│   │   ├── socket/            # Core Socket.IO connection client
+│   │   └── tests/             # Client integration, unit, and Playwright tests
 │   └── package.json
 │
-└── README.md
+└── README.md                  # Detailed repo guide
 ```
-
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
-<p align="center">
-  Built with ❤️ by <strong>Shruti Srivastava</strong> for <a href="https://digitalheroesco.com" target="_blank">Digital Heroes</a>
-</p>
